@@ -1,0 +1,1036 @@
+const scriptName = "imobot";
+/**
+ * (string) room
+ * (string) sender
+ * (boolean) isGroupChat
+ * (void) replier.reply(message)
+ * (boolean) replier.reply(room, message, hideErrorToast = false) // 전송 성공시 true, 실패시 false 반환
+ * (string) imageDB.getProfileBase64()
+ * (string) packageName
+ */
+let powerManager = Api.getContext().getSystemService(android.content.Context.POWER_SERVICE);
+let wakeLock = powerManager.newWakeLock(android.os.PowerManager.PARTIAL_WAKE_LOCK,"MSGBOTWAKELOCK");
+importClass(org.jsoup.Jsoup); 
+var setTimeout, clearTimeout, setInterval, clearInterval;
+(function () { var executor = new java.util.concurrent.Executors.newScheduledThreadPool(1); var counter = 1; var ids = {}; setTimeout = function (fn,delay) { var id = counter++; var runnable = new JavaAdapter(java.lang.Runnable, {run: fn}); ids[id] = executor.schedule(runnable, delay, java.util.concurrent.TimeUnit.MILLISECONDS); return id; }; clearTimeout = function (id) { ids[id].cancel(false); executor.purge(); delete ids[id]; }; setInterval = function (fn,delay) { var id = counter++; var runnable = new JavaAdapter(java.lang.Runnable, {run: fn}); ids[id] = executor.scheduleAtFixedRate(runnable, delay, delay, java.util.concurrent.TimeUnit.MILLISECONDS); return id; }; clearInterval = clearTimeout; })();
+var timer_t;var timer_k;var timer_g;var timer_b;var timer_r;
+var timer_bs;var timer_bmm;var timer_wdk;var timer_dev;var timer_rec;var timer_o;var timer_face;var timer_bil;
+ 
+var test_room="";var bmm_room="";var wdk_room="";var dev_room="";var rec_room="";
+var dar_room="";var b_room="";var r_room="";var g_room="";var t_room="";var k_room="";var bs_room="";var face_room="";var bil_room="";
+var admin='진호'; var room_names=["아이요 왕국","당탐공유방","죽망먹자으쌰","왕국길드 와당방","진호"];
+
+
+
+function response(room, msg, sender, isGroupChat, replier, imageDB, packageName) {
+  
+  function noti_room(){
+    if(sender==admin&&msg.startsWith('/공지 ')){
+      msg=msg.replace('/공지 ',"");
+      Api.replyRoom(admin,'공지완료');
+      for(i=0;i<room_names.length;i++){
+       Api.replyRoom(room_names[i],"*공지*\n\n"+msg);
+      }
+    }
+    else if(sender==admin&&msg.startsWith('/포인트방공지 ')){
+      msg=msg.replace('/포인트방공지 ',"");
+      Api.replyRoom(admin,'공지완료');
+      Api.replyRoom("왕국길드 포인트방","*공지*\n\n"+msg);
+    }
+  }
+  noti_room();
+  
+  function roomMessage(name_room,room_timer){
+  if(name_room==room){
+    if(room_timer){
+      clearTimeout(room_timer);
+      }
+    }
+  }
+  if(msg=="웨이크락"){
+    wakeLock.acquire();
+    replier.reply("웨이크락완료");
+  }
+  else if(msg=="웨이크락해제"){
+    wakeLock.release();
+    replier.reply("웨이크락해제");
+  }
+  var ccc=0;
+  
+  if(room_names.indexOf(room)==-1){
+    return;
+  }
+  var str='';
+  var day=['일','월','화','수','목','금','토','일','월','화','수','목','금','토'];
+  var now_day= new Date();
+  var now_time=0;
+  var gen_time=0;
+  var now_hours= Number(now_day.getHours());
+  var now_secs= Number(now_day.getSeconds());
+  var now_mins= Number(now_day.getMinutes());
+  var delay_time_hour=0;
+  var delay_time_min=0;
+  var delay_time_sec=0;
+  
+  if(msg.startsWith("s소집해제")){
+    
+  function dday(y,m,a){ 
+    let d = new Date(); 
+    var r = String(Number(new Date(y,m,a).getTime()-new Date(d.getFullYear(),d.getMonth()+1,d.getDate()).getTime())/86400000); 
+    return r==0? "D-Day":(r-1)+"일 남았슴둥"; 
+     }
+    var ms=dday(2022,7,11);
+    replier.reply(ms);   
+    }
+  
+  try{
+  str=msg.split('ㅋ');
+    if(str[0].length<4){
+    gen_time=0;
+     if(str[0]=='ㅂㅁ'||str[0]=='빅마'){
+       
+       var bmm_time=str[1].split(':');
+       var bmm_time_hour=Number(bmm_time[0]);
+       var bmm_time_min=Number(bmm_time[1]);
+       var bmm_time_sec=Number(now_day.getSeconds());
+       var bmm_day=day[now_day.getDay()];
+       bmm_time_hour+=20;bmm_time_min+=55;
+       
+       delay_time_hour=bmm_time_hour;
+       delay_time_min=bmm_time_min;
+       delay_time_sec=bmm_time_sec;
+         
+       delay_time_hour-=now_hours;
+       delay_time_min-=now_mins;
+       gen_time=(delay_time_hour*3600)+(delay_time_min*60)+(delay_time_sec)-600;
+       
+       if(bmm_time_min>=60){
+         bmm_time_hour+=1;bmm_time_min-=60;
+       }
+       if(bmm_time_hour>=24){
+       bmm_time_hour-=24;
+       bmm_day=day[now_day.getDay()+1];
+       }
+       if((isNaN(bmm_time_hour)==true)||(isNaN(bmm_time_min)==true)||(isNaN(bmm_time_sec)==true)){
+         replier.reply("재대로된 형식의 명령어가 아닙니다. 재입력 해주세요");
+         return;
+       }
+       
+       replier.reply('빅마마 다음젠 ('+bmm_day+') ' +bmm_time_hour+"시 " + bmm_time_min+'분');
+       FileStream.write("/sdcard/아이모챗봇/bmm.txt","빅마마 ("+ bmm_day+') ' +bmm_time_hour+"시 " + bmm_time_min+"분");
+       
+       roomMessage(bmm_room,timer_bmm);
+       timer_bmm=setTimeout(function(){replier.reply("띵동~ ☆빅마마 10분전 입니다.☆");if(room=="아이요 왕국"){replier.reply("ALKIUYFJOLJGL");} },(gen_time*1000));               
+       bmm_room=room;            
+     }
+     else if(str[0]=='첫빅마'||str[0]=='첫ㅂㅁ'){
+       bmm_time=str[1].split(':');
+       bmm_time_hour=Number(bmm_time[0]);
+       bmm_time_min=Number(bmm_time[1]);
+       bmm_time_sec=Number(now_day.getSeconds());
+       bmm_day=day[now_day.getDay()];
+       bmm_time_hour+=21;bmm_time_min+=10;
+       
+       delay_time_hour=bmm_time_hour;
+       delay_time_min=bmm_time_min;
+       delay_time_sec=bmm_time_sec;
+         
+       delay_time_hour-=now_hours;
+       delay_time_min-=now_mins;
+       gen_time=(delay_time_hour*3600)+(delay_time_min*60)+(delay_time_sec)-600;
+       
+       if(bmm_time_min>=60){
+         bmm_time_hour+=1;bmm_time_min-=60;
+       }
+       if(bmm_time_hour>=24){
+         bmm_time_hour-=24;
+         bmm_day=day[now_day.getDay()+1];
+       }
+       if((isNaN(bmm_time_hour)==true)||(isNaN(bmm_time_min)==true)||(isNaN(bmm_time_sec)==true)){
+         replier.reply("재대로된 형식의 명령어가 아닙니다. 재입력 해주세요");
+         return;
+       }
+       
+       
+       replier.reply('빅마마 다음젠 ('+bmm_day+') ' +bmm_time_hour+"시 " + bmm_time_min+'분');
+       FileStream.write("/sdcard/아이모챗봇/bmm.txt","빅마마 ("+ bmm_day+') ' +bmm_time_hour+"시 " + bmm_time_min+"분");
+       
+       roomMessage(bmm_room,timer_bmm);
+       timer_bmm=setTimeout(function(){replier.reply("띵동~ ☆빅마마 10분전 입니다.☆");if(room=="아이요 왕국"){replier.reply("ALKIUYFJOLJGL");} },(gen_time*1000));     
+       bmm_room=room;
+     }
+     
+     else if(str[0]=='뎁'||str[0]=='데블랑'){
+       var dev_time=str[1].split(':');
+       var dev_time_hour=Number(dev_time[0]);
+       var dev_time_min=Number(dev_time[1]);
+       var dev_time_sec=Number(now_day.getSeconds());
+       var dev_day=day[now_day.getDay()];
+       dev_time_hour+=5;dev_time_min+=33;
+       
+       delay_time_hour=dev_time_hour;
+       delay_time_min=dev_time_min;
+       delay_time_sec=dev_time_sec;
+         
+       delay_time_hour-=now_hours;
+       delay_time_min-=now_mins;
+       gen_time=(delay_time_hour*3600)+(delay_time_min*60)+(delay_time_sec)-600;
+       
+       if(dev_time_min>=60){
+         dev_time_hour+=1;dev_time_min-=60;
+       }
+       if(dev_time_hour>=24){
+         dev_time_hour-=24;
+         dev_day=day[now_day.getDay()+1];
+       }
+       if((isNaN(dev_time_hour)==true)||(isNaN(dev_time_min)==true)||(isNaN(dev_time_sec)==true)){
+         replier.reply("재대로된 형식의 명령어가 아닙니다. 재입력 해주세요");
+         return;
+       }
+       
+       replier.reply('데블랑 다음젠 ('+dev_day+') ' +dev_time_hour+"시 " + dev_time_min + '분');
+       FileStream.write("/sdcard/아이모챗봇/dev.txt","데블랑 ("+dev_day+') ' +dev_time_hour+"시 " + dev_time_min+"분");
+       roomMessage(dev_room,timer_dev);
+       timer_dev=setTimeout(function(){replier.reply("띵동~ ☆데블랑 10분전 입니다.☆");if(room=="아이요 왕국"){replier.reply("ALKIUYFJOLJGL");} },(gen_time*1000));     
+       dev_room=room;
+     }
+     else if(str[0]=='첫뎁'||str[0]=='첫데블랑'){
+       dev_time=str[1].split(':');
+       dev_time_hour=Number(dev_time[0]);
+       dev_time_min=Number(dev_time[1]);
+       dev_time_sec=Number(now_day.getSeconds());
+       dev_day=day[now_day.getDay()];
+       dev_time_hour+=5;dev_time_min+=43;
+       
+       delay_time_hour=dev_time_hour;
+       delay_time_min=dev_time_min;
+       delay_time_sec=dev_time_sec;
+         
+       delay_time_hour-=now_hours;
+       delay_time_min-=now_mins;
+       gen_time=(delay_time_hour*3600)+(delay_time_min*60)+(delay_time_sec)-600;
+       
+       if(dev_time_min>=60){
+         dev_time_hour+=1;dev_time_min-=60;
+       }
+       if(dev_time_hour>=24){
+         dev_time_hour-=24;
+         dev_day=day[now_day.getDay()+1];
+       }
+       if((isNaN(dev_time_hour)==true)||(isNaN(dev_time_min)==true)||(isNaN(dev_time_sec)==true)){
+         replier.reply("재대로된 형식의 명령어가 아닙니다. 재입력 해주세요");
+         return;
+       }
+       
+       replier.reply('데블랑 다음젠 ('+dev_day+') ' +dev_time_hour+"시 " + dev_time_min + '분');
+       FileStream.write("/sdcard/아이모챗봇/dev.txt","데블랑 ("+dev_day+') ' +dev_time_hour+"시 " + dev_time_min+"분");
+       roomMessage(dev_room,timer_dev);
+       timer_dev=setTimeout(function(){replier.reply("띵동~ ☆데블랑 10분전 입니다.☆"); if(room=="아이요 왕국"){replier.reply("ALKIUYFJOLJGL");}},(gen_time*1000));     
+       dev_room=room;
+     }
+     
+     else if(str[0]=='와당카'||str[0]=='와당'||str[0]=='당'){
+       var wdk_time=str[1].split(':');
+       var wdk_time_hour=Number(wdk_time[0]);
+       var wdk_time_min=Number(wdk_time[1]);
+       var wdk_time_sec=Number(now_day.getSeconds());
+       var wdk_day=day[now_day.getDay()];
+       wdk_time_hour+=2;wdk_time_min+=30;
+       
+       delay_time_hour=wdk_time_hour;
+       delay_time_min=wdk_time_min;
+       delay_time_sec=wdk_time_sec;
+         
+       delay_time_hour-=now_hours;
+       delay_time_min-=now_mins;
+       gen_time=(delay_time_hour*3600)+(delay_time_min*60)+(delay_time_sec)-600;
+       if(wdk_time_min>=60){
+         wdk_time_hour+=1;wdk_time_min-=60;
+       }
+       if(wdk_time_hour>=24){
+         wdk_time_hour-=24;
+         wdk_day=day[now_day.getDay()+1];
+       }
+       if((isNaN(wdk_time_hour)==true)||(isNaN(wdk_time_min)==true)||(isNaN(wdk_time_sec)==true)){
+         replier.reply("재대로된 형식의 명령어가 아닙니다. 재입력 해주세요");
+         return;
+       }
+       
+       replier.reply('와당카 다음젠 ('+ wdk_day+') '+wdk_time_hour+"시 " + wdk_time_min+'분');
+       FileStream.write("/sdcard/아이모챗봇/wdk.txt","와당카 (" +wdk_day+') '+wdk_time_hour+"시 " + wdk_time_min+"분");
+       roomMessage(wdk_room,timer_wdk);
+       timer_wdk=setTimeout(function(){replier.reply("띵동~ ☆와당카 10분전 입니다.☆");},(gen_time*1000));     
+       wdk_room=room;
+       
+       
+     }
+     else if(str[0]=='첫와당카'||str[0]=='첫와당'){
+       wdk_time=str[1].split(':');
+       wdk_time_hour=Number(wdk_time[0]);
+       wdk_time_min=Number(wdk_time[1]);
+       wdk_time_sec=Number(now_day.getSeconds());      
+       wdk_day=day[now_day.getDay()];
+       wdk_time_hour+=2;wdk_time_min+=50;
+       
+       delay_time_hour=wdk_time_hour;
+       delay_time_min=wdk_time_min;
+       delay_time_sec=wdk_time_sec;
+         
+       delay_time_hour-=now_hours;
+       delay_time_min-=now_mins;
+       gen_time=(delay_time_hour*3600)+(delay_time_min*60)+(delay_time_sec)-600;
+       
+       if(wdk_time_min>=60){
+         wdk_time_hour+=1;wdk_time_min-=60;
+       }
+       if(wdk_time_hour>=24){
+         wdk_time_hour-=24;
+         wdk_day=day[now_day.getDay()+1];
+       }
+       if((isNaN(wdk_time_hour)==true)||(isNaN(wdk_time_min)==true)||(isNaN(wdk_time_sec)==true)){
+         replier.reply("재대로된 형식의 명령어가 아닙니다. 재입력 해주세요");
+         return;
+       }
+       
+       replier.reply('와당카 다음젠 ('+ wdk_day+') '+wdk_time_hour+"시 " + wdk_time_min+'분');
+       FileStream.write("/sdcard/아이모챗봇/wdk.txt","와당카 (" +wdk_day+') '+wdk_time_hour+"시 " + wdk_time_min+"분");
+       roomMessage(wdk_room,timer_wdk);
+       timer_wdk=setTimeout(function(){replier.reply("띵동~ ☆와당카 10분전 입니다.☆");},(gen_time*1000));     
+       wdk_room=room;
+     }
+     
+     else if(str[0]=='은둔'){
+       var rec_time=str[1].split(':');
+       var rec_time_hour=Number(rec_time[0]);
+       var rec_time_min=Number(rec_time[1]);
+       var rec_time_sec=Number(now_day.getSeconds());     
+       var rec_day=day[now_day.getDay()];
+       rec_time_hour+=11;rec_time_min+=23;
+       
+       delay_time_hour=rec_time_hour;
+       delay_time_min=rec_time_min;
+       delay_time_sec=rec_time_sec;
+         
+       delay_time_hour-=now_hours;
+       delay_time_min-=now_mins;
+       gen_time=(delay_time_hour*3600)+(delay_time_min*60)+(delay_time_sec)-600;
+      
+       if(rec_time_min>=60){
+         rec_time_hour+=1;rec_time_min-=60;
+       }
+       if(rec_time_hour>=24){
+         rec_time_hour-=24;
+         rec_day=day[now_day.getDay()+1];
+       }
+       if((isNaN(rec_time_hour)==true)||(isNaN(rec_time_min)==true)||(isNaN(rec_time_sec)==true)){
+         replier.reply("재대로된 형식의 명령어가 아닙니다. 재입력 해주세요");
+         return;
+       }
+       
+       
+       replier.reply('은둔자 다음젠 ('+rec_day+') '+ rec_time_hour+"시 " + rec_time_min+'분');
+       FileStream.write("/sdcard/아이모챗봇/rec.txt","은둔자 ("+rec_day+') '+ rec_time_hour+"시 " + rec_time_min+"분");
+       roomMessage(rec_room,timer_rec);
+       timer_rec=setTimeout(function(){replier.reply("띵동~ ☆은둔자 10분전 입니다.☆"); if(room=="아이요 왕국"){replier.reply("ALKIUYFJOLJGL");}},(gen_time*1000));     
+       rec_room=room;
+     }
+     else if(str[0]=='마녀'||str[0]=='딜린'){
+       var dar_time=str[1].split(':');
+       var dar_time_hour=Number(dar_time[0]);
+       var dar_time_min=Number(dar_time[1]);
+       var dar_day=day[now_day.getDay()+2];
+       if(dar_time_min>=60){
+         dar_time_hour+=1;dar_time_min-=60;
+       }
+       if(dar_time_hour>=24){
+         dar_time_hour-=24;
+             
+       }
+       
+       replier.reply('딜린 다음젠 ('+dar_day +') '+dar_time_hour+"시 " + dar_time_min+'분');
+       FileStream.write("/sdcard/아이모챗봇/dar.txt","딜린 ("+ dar_day+') '+ dar_time_hour+"시 " + dar_time_min+"분");
+       
+       
+       
+     }
+     
+     else if(str[0]=='페'||str[0]=='페이쓰'){
+       var face_time=str[1].split(':');
+       var face_time_hour=Number(face_time[0]);
+       var face_time_min=Number(face_time[1]);
+       var face_time_sec=Number(now_day.getSeconds());
+       var face_day=day[now_day.getDay()];
+       face_time_hour+=5;face_time_min+=53;
+       
+       delay_time_hour=face_time_hour;
+       delay_time_min=face_time_min;
+       delay_time_sec=face_time_sec;
+         
+       delay_time_hour-=now_hours;
+       delay_time_min-=now_mins;
+       gen_time=(delay_time_hour*3600)+(delay_time_min*60)+(delay_time_sec)-600;
+       
+       if(face_time_min>=60){
+         face_time_hour+=1;face_time_min-=60;
+       }
+       if(face_time_hour>=24){
+         face_time_hour-=24;
+         face_day=day[now_day.getDay()+1];
+       }
+       if((isNaN(face_time_hour)==true)||(isNaN(face_time_min)==true)||(isNaN(face_time_sec)==true)){
+         replier.reply("재대로된 형식의 명령어가 아닙니다. 재입력 해주세요");
+         return;
+       }
+       
+       replier.reply('페이쓰 다음젠 ('+face_day+') ' +face_time_hour+"시 " + face_time_min + '분');
+       FileStream.write("/sdcard/아이모챗봇/face.txt","페이쓰 ("+face_day+') ' +face_time_hour+"시 " + face_time_min+"분");
+       roomMessage(face_room,timer_face);
+       timer_face=setTimeout(function(){replier.reply("띵동~ ☆페이쓰 10분전 입니다.☆");if(room=="아이요 왕국"){replier.reply("ALKIUYFJOLJGL");} },(gen_time*1000));     
+       face_room=room;
+     }
+     
+     else if(str[0]=='ㅂ'||str[0]=='빌리'){
+       var bil_time=str[1].split(':');
+       var bil_time_hour=Number(bil_time[0]);
+       var bil_time_min=Number(bil_time[1]);
+       var bil_time_sec=Number(now_day.getSeconds());
+       var bil_day=day[now_day.getDay()];
+       bil_time_hour+=7;bil_time_min+=55;
+       
+       delay_time_hour=bil_time_hour;
+       delay_time_min=bil_time_min;
+       delay_time_sec=bil_time_sec;
+         
+       delay_time_hour-=now_hours;
+       delay_time_min-=now_mins;
+       gen_time=(delay_time_hour*3600)+(delay_time_min*60)+(delay_time_sec)-600;
+       
+       if(bil_time_min>=60){
+         bil_time_hour+=1;bil_time_min-=60;
+       }
+       if(bil_time_hour>=24){
+         bil_time_hour-=24;
+         bil_day=day[now_day.getDay()+1];
+       }
+       if((isNaN(bil_time_hour)==true)||(isNaN(bil_time_min)==true)||(isNaN(bil_time_sec)==true)){
+         replier.reply("재대로된 형식의 명령어가 아닙니다. 재입력 해주세요");
+         return;
+       }
+       
+       replier.reply('빌리어드 다음젠 ('+bil_day+') ' +bil_time_hour+"시 " + bil_time_min + '분');
+       FileStream.write("/sdcard/아이모챗봇/bil.txt","빌리어드 ("+bil_day+') ' +bil_time_hour+"시 " + bil_time_min+"분");
+       roomMessage(bil_room,timer_bil);
+       timer_bil=setTimeout(function(){replier.reply("띵동~ ☆빌리어드 10분전 입니다.☆");if(room=="아이요 왕국"){replier.reply("ALKIUYFJOLJGL");} },(gen_time*1000));     
+       bil_room=room;
+     }
+     
+     
+     else if(str[0]=='파'||str[0]=='ㅍ'){
+       var b_time=str[1].split(':');
+       var b_day=day[now_day.getDay()];
+       var b_time_hour=Number(now_day.getHours());
+       var b_time_min=Number(b_time[0]);
+       var b_time_sec=Number(b_time[1]);     
+       b_time_min+=5;b_time_sec+=20;b_time_hour+=1;
+       
+       delay_time_hour=b_time_hour;
+       delay_time_min=b_time_min;
+       delay_time_sec=b_time_sec;
+         
+       delay_time_hour-=now_hours;
+       delay_time_min-=now_mins;
+       delay_time_sec-=now_secs;
+       gen_time=(delay_time_hour*3600)+(delay_time_min*60)+(delay_time_sec)-300;
+       
+       if(b_time_sec>=60){
+         b_time_min+=1;b_time_sec-=60;
+       }
+       if(b_time_min>=60){
+         b_time_hour+=1;b_time_min-=60;
+       }
+       if(b_time_hour>=24){
+         b_time_hour-=24;
+         b_day=day[now_day.getDay()+1];
+       }
+       if((isNaN(b_time_hour)==true)||(isNaN(b_time_min)==true)||(isNaN(b_time_sec)==true)){
+         replier.reply("재대로된 형식의 명령어가 아닙니다. 재입력 해주세요");
+         return;
+       }
+             
+       replier.reply('파웃보 다음젠  '+b_time_hour+"시 " + b_time_min+'분 '+b_time_sec+'초');
+       FileStream.write("/sdcard/아이모챗봇/blue.txt","파웃보 "+ b_time_hour+"시 " + b_time_min+"분 "+b_time_sec+'초');
+       roomMessage(b_room,timer_b);
+       timer_b=setTimeout(function(){replier.reply("띵동~ ☆파웃보 5분전 입니다.☆");},(gen_time*1000));     
+       b_room=room;   
+       
+     }
+     else if(str[0]=='빨'||str[0]=='ㅃ'){
+       var r_time=str[1].split(':');
+       var r_time_min=Number(r_time[0]);
+       var r_time_sec=Number(r_time[1]);
+       var r_time_hour=Number(now_day.getHours());
+       var r_day=day[now_day.getDay()];
+       r_time_hour+=1;r_time_min+=6;r_time_sec+=50;
+       
+       delay_time_hour=r_time_hour;
+       delay_time_min=r_time_min;
+       delay_time_sec=r_time_sec;
+         
+       delay_time_hour-=now_hours;
+       delay_time_min-=now_mins;
+       delay_time_sec-=now_secs;
+       gen_time=(delay_time_hour*3600)+(delay_time_min*60)+(delay_time_sec)-300;
+       
+       if(r_time_sec>=60){
+         r_time_min+=1;r_time_sec-=60;
+       }
+       
+       if(r_time_min>=60){
+         r_time_hour+=1;r_time_min-=60;
+       }
+       if(r_time_hour>=24){
+         r_time_hour-=24;
+         r_day=day[now_day.getDay()+1];
+       }
+       if((isNaN(r_time_hour)==true)||(isNaN(r_time_min)==true)||(isNaN(r_time_sec)==true)){
+         replier.reply("재대로된 형식의 명령어가 아닙니다. 재입력 해주세요");
+         return;
+       }
+       replier.reply('빨웃보 다음젠 '+r_time_hour+"시 " + r_time_min+'분 '+r_time_sec+'초');
+       FileStream.write("/sdcard/아이모챗봇/red.txt","빨웃보 "+ r_time_hour+"시 " + r_time_min+"분 "+r_time_sec+'초');
+       roomMessage(r_room,timer_r);
+       timer_r=setTimeout(function(){replier.reply("띵동~ ☆빨웃보 5분전 입니다.☆");},(gen_time*1000));     
+       r_room=room;     
+     }
+     else if(str[0]=='초'||str[0]=='ㅊ'||str[0]=='녹'||str[0]=='ㄴ'){
+       var g_time=str[1].split(':');
+       var g_time_min=Number(g_time[0]);
+       var g_time_sec=Number(g_time[1]);
+       var g_time_hour=Number(now_day.getHours());
+       var g_day=day[now_day.getDay()];
+       g_time_hour+=1;g_time_min+=8;g_time_sec+=30;
+       
+       delay_time_hour=g_time_hour;
+       delay_time_min=g_time_min;
+       delay_time_sec=g_time_sec;
+         
+       delay_time_hour-=now_hours;
+       delay_time_min-=now_mins;
+       delay_time_sec-=now_secs;
+       gen_time=(delay_time_hour*3600)+(delay_time_min*60)+(delay_time_sec)-300;
+       if(g_time_sec>=60){
+         g_time_min+=1;g_time_sec-=60;
+         
+       }      
+       if(g_time_min>=60){
+         g_time_hour+=1;g_time_min-=60;
+         
+       }
+       if(g_time_hour>=24){
+         g_time_hour-=24;
+         g_day=day[now_day.getDay()+1];
+       }
+       if((isNaN(g_time_hour)==true)||(isNaN(g_time_min)==true)||(isNaN(g_time_sec)==true)){
+         replier.reply("재대로된 형식의 명령어가 아닙니다. 재입력 해주세요");
+         return;
+       }
+       replier.reply('녹웃보 다음젠 '+g_time_hour+"시 " + g_time_min+'분 '+g_time_sec+'초');
+       FileStream.write("/sdcard/아이모챗봇/green.txt","녹웃보 "+ g_time_hour+"시 " + g_time_min+"분 "+g_time_sec+'초');
+       roomMessage(g_room,timer_g);
+       timer_g=setTimeout(function(){replier.reply("띵동~ ☆녹웃보 5분전 입니다.☆");},(gen_time*1000));     
+       g_room=room;
+     }
+     else if(str[0]=='쿠이'||str[0]=='ㅋㅇ'){
+       var k_time=str[1].split(':');
+       var k_time_min=Number(k_time[0]);
+       var k_time_sec=Number(k_time[1]);
+       var k_time_hour=Number(now_day.getHours());
+       var k_day=day[now_day.getDay()];
+       k_time_hour+=1;k_time_min+=3;k_time_sec+=30;
+       
+       delay_time_hour=k_time_hour;
+       delay_time_min=k_time_min;
+       delay_time_sec=k_time_sec;
+         
+       delay_time_hour-=now_hours;
+       delay_time_min-=now_mins;
+       delay_time_sec-=now_secs;
+       gen_time=(delay_time_hour*3600)+(delay_time_min*60)+(delay_time_sec)-300;
+       
+       if(k_time_sec>=60){
+         k_time_min+=1;k_time_sec-=60;
+       }
+       if(k_time_min>=60){
+         k_time_hour+=1;k_time_min-=60;
+       }
+       if(k_time_hour>=24){
+         k_time_hour-=24;
+         k_day=day[now_day.getDay()+1];
+       }
+       if((isNaN(k_time_hour)==true)||(isNaN(k_time_min)==true)||(isNaN(k_time_sec)==true)){
+         replier.reply("재대로된 형식의 명령어가 아닙니다. 재입력 해주세요");
+         return;
+       }
+       
+       replier.reply('쿠이 다음젠 '+k_time_hour+"시 " + k_time_min+'분 '+k_time_sec+'초');
+       FileStream.write("/sdcard/아이모챗봇/kooii.txt","쿠이 "+ k_time_hour+"시 " + k_time_min+"분 "+k_time_sec+'초');
+       roomMessage(k_room,timer_k);
+       timer_k=setTimeout(function(){replier.reply("띵동~ ☆쿠이 5분전 입니다.☆");},(gen_time*1000));     
+       k_room=room;
+       
+     }
+     else if(str[0]=='탱'||str[0]=='ㅌ'){
+       var t_time=str[1].split(':');
+       var t_time_min=Number(t_time[0]);
+       var t_time_sec=Number(t_time[1]);
+       var t_time_hour=Number(now_day.getHours());
+       var t_day=day[now_day.getDay()];
+       t_time_min+=58;t_time_sec+=25;
+       
+       
+       delay_time_min=t_time_min;
+       delay_time_sec=t_time_sec;
+         
+       delay_time_min-=now_mins;
+       delay_time_sec-=now_secs;
+       
+       gen_time=(delay_time_min*60)+(delay_time_sec)-300;
+       if(t_time_sec>=60){
+         t_time_min+=1;t_time_sec-=60;
+       }
+       if(t_time_min>=60){
+         t_time_hour+=1;t_time_min-=60;
+       }
+       if(t_time_hour>=24){
+         t_time_hour-=24;
+         t_day=day[now_day.getDay()+1];
+       }     
+       if((isNaN(t_time_hour)==true)||(isNaN(t_time_min)==true)||(isNaN(t_time_sec)==true)){
+         replier.reply("재대로된 형식의 명령어가 아닙니다. 재입력 해주세요");
+         return;
+       }
+      
+       replier.reply('탱크 다음젠 '+t_time_hour+"시 " + t_time_min+'분 '+t_time_sec+'초');
+       FileStream.write("/sdcard/아이모챗봇/tank.txt","탱크 "+ t_time_hour+"시 " + t_time_min+"분 "+t_time_sec+'초');
+       roomMessage(t_room,timer_t);
+       timer_t=setTimeout(function(){replier.reply("띵동~ ☆탱크 5분전 입니다.☆");},(gen_time*1000));     
+       t_room=room;          
+     }
+     else if(str[0]=='블스'||str[0]=='ㅂㅅ'){
+       var bs_time=str[1].split(':');
+       var bs_time_min=Number(bs_time[0]);
+       var bs_time_sec=Number(bs_time[1]);
+       var bs_time_hour=Number(now_day.getHours());
+       var bs_day=day[now_day.getDay()];
+       bs_time_min+=57;
+       
+       
+       delay_time_min=bs_time_min;
+       
+         
+       delay_time_min-=now_mins;
+       
+       gen_time=(delay_time_min*60)-300;
+       if(bs_time_sec>=60){
+         bs_time_min+=1;bs_time_sec-=60;
+       }
+       if(bs_time_min>=60){
+         bs_time_hour+=1;bs_time_min-=60;
+       }
+       if(bs_time_hour>=24){
+         bs_time_hour-=24;
+         bs_day=day[now_day.getDay()+1];
+       }     
+       if((isNaN(bs_time_hour)==true)||(isNaN(bs_time_min)==true)||(isNaN(bs_time_sec)==true)){
+         replier.reply("재대로된 형식의 명령어가 아닙니다. 재입력 해주세요");
+         return;
+       }
+      
+       replier.reply('블랙스컬 다음젠 '+bs_time_hour+"시 " + bs_time_min+'분 '+bs_time_sec+'초');
+       FileStream.write("/sdcard/아이모챗봇/blackskull.txt","블랙스컬 "+ bs_time_hour+"시 " + bs_time_min+"분 "+bs_time_sec+'초');
+       roomMessage(bs_room,timer_bs);
+       timer_bs=setTimeout(function(){replier.reply("띵동~ ☆블랙스컬 5분전 입니다.☆");},(gen_time*1000));     
+       bs_room=room;
+     }
+     else if(str[0]=='텟'){
+       FileStream.write("/sdcard/아이모챗봇/cntWeekBoss.txt",2);
+       
+       return;
+       
+       var o_time=str[1].split(':');
+       var o_time_min=Number(o_time[0]);
+       var o_time_sec=Number(o_time[1]);
+       var o_time_hour=Number(now_day.getHours());
+       var o_day=day[now_day.getDay()];
+       o_time_min+=1;
+       
+       
+       delay_time_min=o_time_min;
+       
+         
+       delay_time_min-=now_mins;
+       
+       gen_time=(delay_time_min*60);
+       if(o_time_sec>=60){
+         o_time_min+=1;o_time_sec-=60;
+       }
+       if(o_time_min>=60){
+         o_time_hour+=1;o_time_min-=60;
+       }
+       if(o_time_hour>=24){
+         o_time_hour-=24;
+         o_day=day[now_day.getDay()+1];
+       }     
+       if((isNaN(o_time_hour)==true)||(isNaN(o_time_min)==true)||(isNaN(o_time_sec)==true)){
+         replier.reply("재대로된 형식의 명령어가 아닙니다. 재입력 해주세요");
+         return;
+       }
+      
+       replier.reply('테스트 다음젠 '+o_time_hour+"시 " + o_time_min+'분 '+o_time_sec+'초');
+       FileStream.write("/sdcard/아이모챗봇/testo.txt","테스트 "+ o_time_hour+"시 " + o_time_min+"분 "+o_time_sec+'초');
+       
+       roomMessage(test_room,timer_o);  
+       timer_o=setTimeout(function(){replier.reply("띵동~ ☆테스트 10초전 입니다.☆");if(room=="아이요 왕국"){replier.reply("ALKIUYFJO.LJGL");}  },(gen_time*1000));     
+       test_room=room;
+     }
+     
+   }
+  
+   else{
+     function weekChange(){
+       var day=['일','월','화','수','목','금','토'];
+       var now_day= new Date();
+       
+       if((day[now_day.getDay()]=='목'&&now_day.getHours()>16)||day[now_day.getDay()]=="금"){
+         FileStream.write("/sdcard/아이모챗봇/cntFlag.txt",0);
+         
+       }
+       var flag_cnt=FileStream.read("/sdcard/아이모챗봇/cntFlag.txt");
+       flag_cnt=JSON.parse(flag_cnt);
+       if(flag_cnt==0){  
+         
+         var day_day=day[now_day.getDay()];
+         if(day_day=='목'&&now_day.getHours()>=11&&now_day.getHours()<=16){
+           var cnt_week=FileStream.read("/sdcard/아이모챗봇/cntWeek.txt");
+           cnt_week=JSON.parse(cnt_week);
+           cnt_week+=1;
+           cnt_week=Number(cnt_week);
+           FileStream.write("/sdcard/아이모챗봇/cntWeek.txt",cnt_week);
+           FileStream.write("/sdcard/아이모챗봇/cntFlag.txt",1);
+           
+           return cnt_week;
+           }
+           }
+           cnt_week=FileStream.read("/sdcard/아이모챗봇/cntWeek.txt");
+         cnt_week=JSON.parse(cnt_week);
+         return cnt_week;
+        
+     }
+     
+     str=msg.split(' ');
+     if(str[0]=='보스'){      
+      if(str[1]=='전체시간'){
+         var readDataIndex=[];
+         var bmm_ReadData_split=FileStream.read("/sdcard/아이모챗봇/bmm.txt");
+         var dev_ReadData_split=FileStream.read("/sdcard/아이모챗봇/dev.txt");
+         var wdk_ReadData_split=FileStream.read("/sdcard/아이모챗봇/wdk.txt");
+         var rec_ReadData_split=FileStream.read("/sdcard/아이모챗봇/rec.txt");
+         var dar_ReadData_split=FileStream.read("sdcard/아이모챗봇/dar.txt");
+         
+         
+         var str_data='';
+               
+         function datasplit(name_ReadData){
+           str_data=name_ReadData.split(/\(|\) |시 |분/);
+           readDataIndex.push({name:str_data[0],day:str_data[1],hour:str_data[2],min:str_data[3]});                   
+         }
+         var weekb=weekChange();
+         if(weekb%2==0){
+           datasplit(bmm_ReadData_split);
+         datasplit(dev_ReadData_split);
+         datasplit(wdk_ReadData_split);
+         datasplit(rec_ReadData_split);
+         datasplit(dar_ReadData_split);
+         function weekChanges(){
+           if(day[now_day.getDay()]=='수'&&now_day.getHours()>5){
+           FileStream.write("/sdcard/아이모챗봇/cntFlagBoss.txt",0);
+           }
+           
+           var flag_cnt=FileStream.read("/sdcard/아이모챗봇/cntFlagBoss.txt");
+           flag_cnt=JSON.parse(flag_cnt);
+           if(flag_cnt==0){  
+             if((day[now_day.getDay()]=='화'&&now_day.getHours()>=23&&now_day.getMinutes()>=30)||(day[now_day.getDay()]=='수'&&now_day.getHours()<5)){
+               var cnt_week=FileStream.read("/sdcard/아이모챗봇/cntWeekBoss.txt");
+               cnt_week=JSON.parse(cnt_week);
+               cnt_week=Number(cnt_week);
+               cnt_week+=1;
+               FileStream.write("/sdcard/아이모챗봇/cntWeekBoss.txt",cnt_week);
+               FileStream.write("/sdcard/아이모챗봇/cntFlagBoss.txt",1);
+               
+               return cnt_week;
+               }
+               }   
+               cnt_week=FileStream.read("/sdcard/아이모챗봇/cntWeekBoss.txt");
+                 cnt_week=JSON.parse(cnt_week);
+                 return cnt_week;    
+         }
+         var cnt_weekBoss=weekChanges();
+         if(cnt_weekBoss%2==0){
+           var face_ReadData_split=FileStream.read("sdcard/아이모챗봇/face.txt");
+           datasplit(face_ReadData_split);
+         }
+         else if(cnt_weekBoss%2!=0){
+           var bil_ReadData_split=FileStream.read("sdcard/아이모챗봇/bil.txt");
+           datasplit(bil_ReadData_split);
+         }
+         
+         
+         for(i=0;i<6;i++){
+           readDataIndex[i].hour=Number(readDataIndex[i].hour);
+           readDataIndex[i].min=Number(readDataIndex[i].min);
+         }
+         
+         readDataIndex.sort(function(a,b){
+           var op;var oq;
+           for(i=now_day.getDay();i<14;i++){
+             if(day[i]==a.day){
+               op=i;
+               break;
+             }
+           }
+           for(i=now_day.getDay();i<14;i++){
+             if(day[i]==b.day){
+               oq=i;
+               break;
+             }
+           } 
+           if(op<oq){
+             return -1;
+           }
+           else if(op>oq){
+             return 1;
+           }
+           else{
+             if(a.hour<b.hour){
+               return -1;
+             }
+             else if(a.hour>b.hour){
+               return 1;
+             }
+             else{
+               if(a.min<b.min){
+                 return -1;
+               }
+               else if(a.min>b.min){
+                 return 1;
+               }
+               else{
+                 return 0;
+               }
+             }
+           }
+         });
+             
+         replier.reply(readDataIndex[0].name+ '('+readDataIndex[0].day+') '+readDataIndex[0].hour+'시 '+readDataIndex[0].min+'분\n'+readDataIndex[1].name+ '('+readDataIndex[1].day+') '+readDataIndex[1].hour+'시 '+readDataIndex[1].min+'분\n'+readDataIndex[2].name+ '('+readDataIndex[2].day+') '+readDataIndex[2].hour+'시 '+readDataIndex[2].min+'분\n'+readDataIndex[3].name+ '('+readDataIndex[3].day+') '+readDataIndex[3].hour+'시 '+readDataIndex[3].min+'분\n'+readDataIndex[4].name+ '('+readDataIndex[4].day+') '+readDataIndex[4].hour+'시 '+readDataIndex[4].min+'분\n'+readDataIndex[5].name+ '('+readDataIndex[5].day+') '+readDataIndex[5].hour+'시 '+readDataIndex[5].min+'분');
+       
+           return;
+         }
+         else if(weekb%2!=0){
+         datasplit(bmm_ReadData_split);
+         
+         datasplit(wdk_ReadData_split);
+         datasplit(rec_ReadData_split);
+         datasplit(dar_ReadData_split);
+         function weekChanges(){
+           if(day[now_day.getDay()]=='수'&&now_day.getHours()>5){
+           FileStream.write("/sdcard/아이모챗봇/cntFlagBoss.txt",0);
+           }
+           
+           var flag_cnt=FileStream.read("/sdcard/아이모챗봇/cntFlagBoss.txt");
+           flag_cnt=JSON.parse(flag_cnt);
+           if(flag_cnt==0){  
+             if((day[now_day.getDay()]=='화'&&now_day.getHours()>=23&&now_day.getMinutes()>=30)||(day[now_day.getDay()]=='수'&&now_day.getHours()<5)){
+               var cnt_week=FileStream.read("/sdcard/아이모챗봇/cntWeekBoss.txt");
+               cnt_week=JSON.parse(cnt_week);
+               cnt_week=Number(cnt_week);
+               cnt_week+=1;
+               FileStream.write("/sdcard/아이모챗봇/cntWeekBoss.txt",cnt_week);
+               FileStream.write("/sdcard/아이모챗봇/cntFlagBoss.txt",1);
+               
+               return cnt_week;
+               }
+               }      
+             cnt_week=FileStream.read("/sdcard/아이모챗봇/cntWeekBoss.txt");
+                 cnt_week=JSON.parse(cnt_week);
+                 return cnt_week;   
+         }
+         var cnt_weekBos=weekChanges();
+         if(cnt_weekBos%2==0){
+           var face_ReadData_splits=FileStream.read("sdcard/아이모챗봇/face.txt");
+           datasplit(face_ReadData_splits);
+         }
+         else if(cnt_weekBos%2!=0){
+           var bil_ReadData_splits=FileStream.read("sdcard/아이모챗봇/bil.txt");
+           datasplit(bil_ReadData_splits);
+         }
+         
+         
+         for(i=0;i<5;i++){
+           readDataIndex[i].hour=Number(readDataIndex[i].hour);
+           readDataIndex[i].min=Number(readDataIndex[i].min);
+         }
+         
+         readDataIndex.sort(function(a,b){
+           var op;var oq;
+           for(i=now_day.getDay();i<14;i++){
+             if(day[i]==a.day){
+               op=i;
+               break;
+             }
+           }
+           for(i=now_day.getDay();i<14;i++){
+             if(day[i]==b.day){
+               oq=i;
+               break;
+             }
+           } 
+           if(op<oq){
+             return -1;
+           }
+           else if(op>oq){
+             return 1;
+           }
+           else{
+             if(a.hour<b.hour){
+               return -1;
+             }
+             else if(a.hour>b.hour){
+               return 1;
+             }
+             else{
+               if(a.min<b.min){
+                 return -1;
+               }
+               else if(a.min>b.min){
+                 return 1;
+               }
+               else{
+                 return 0;
+               }
+             }
+           }
+         });
+             
+         replier.reply(readDataIndex[0].name+ '('+readDataIndex[0].day+') '+readDataIndex[0].hour+'시 '+readDataIndex[0].min+'분\n'+readDataIndex[1].name+ '('+readDataIndex[1].day+') '+readDataIndex[1].hour+'시 '+readDataIndex[1].min+'분\n'+readDataIndex[2].name+ '('+readDataIndex[2].day+') '+readDataIndex[2].hour+'시 '+readDataIndex[2].min+'분\n'+readDataIndex[3].name+ '('+readDataIndex[3].day+') '+readDataIndex[3].hour+'시 '+readDataIndex[3].min+'분\n'+readDataIndex[4].name+ '('+readDataIndex[4].day+') '+readDataIndex[4].hour+'시 '+readDataIndex[4].min+'분');
+       
+           return;
+         }
+       }             
+     }
+     
+     else if(str[0]=='등대'){   
+       if(str[1]=='전체시간'){
+         str_data_lh='';readDataIndex_lh=[];
+                
+         function datasplit(name_ReadData){
+           str_data_lh=name_ReadData.split(/ |시 |분 |초/);
+           readDataIndex_lh.push({name:str_data_lh[0],hour:str_data_lh[1],min:str_data_lh[2],sec:str_data_lh[3]});                   
+         }
+               
+         var cnt_weeklh=weekChange();
+         
+         if(cnt_weeklh%2==0){
+           
+           var kooii_ReadData_split=FileStream.read("/sdcard/아이모챗봇/kooii.txt");          
+           replier.reply(kooii_ReadData_split);
+           return;
+           }
+         else if(cnt_weeklh%2!=0){
+           
+           var blue_ReadData_split=FileStream.read("/sdcard/아이모챗봇/blue.txt");
+           var red_ReadData_split=FileStream.read("/sdcard/아이모챗봇/red.txt");
+           var green_ReadData_split=FileStream.read("/sdcard/아이모챗봇/green.txt");
+         
+           datasplit(green_ReadData_split);
+           datasplit(blue_ReadData_split);
+           datasplit(red_ReadData_split);
+         }
+             
+         
+         for(i=0;i<3;i++){
+           readDataIndex_lh[i].hour=Number(readDataIndex_lh[i].hour);
+           readDataIndex_lh[i].min=Number(readDataIndex_lh[i].min);
+           readDataIndex_lh[i].sec=Number(readDataIndex_lh[i].sec);
+         }
+         
+           readDataIndex_lh.sort(function(a,b){    
+           if(a.hour<b.hour){
+             return -1;
+           }
+           else if(a.hour>b.hour){
+             return 1;
+           }
+           else{
+             if(a.min<b.min){
+               return -1;
+             }
+             else if(a.min>b.min){
+               return 1;
+             }
+             else{
+               if(a.sec<b.sec){
+                return -1;
+               }
+               else if(a.sec>b.sec){
+                 return 1;
+               }
+               else{
+                 return 0;
+               }
+             }
+           }
+         });
+             
+         replier.reply(readDataIndex_lh[0].name+' '+readDataIndex_lh[0].hour+'시 '+readDataIndex_lh[0].min+'분 '+readDataIndex_lh[0].sec+'초\n'+readDataIndex_lh[1].name+' '+readDataIndex_lh[1].hour+'시 '+readDataIndex_lh[1].min+'분 '+readDataIndex_lh[1].sec+'초\n'+readDataIndex_lh[2].name+ ' '+readDataIndex_lh[2].hour+'시 '+readDataIndex_lh[2].min+'분 '+readDataIndex_lh[2].sec+'초');
+         
+       }
+      } 
+      else if(str[0]=='탱크시간'){
+        var tank_ReadData=FileStream.read("/sdcard/아이모챗봇/tank.txt");
+        replier.reply(tank_ReadData);
+        } 
+      else if(str[0]=="사용법안내"){
+        replier.reply("---------------------------------------\n정해진 형식은 다음과 같습니다.\n");
+        
+        replier.reply("보스이름 안내\n 1. 빅마 or ㅂㅁ\n 2. 데블랑 or 뎁\n 3. 와당\n 4. 은둔\n 5. 딜린 or 마녀\n");
+        replier.reply(" 6.파 or ㅍ \n 7.빨 or ㅃ \n 8.초 or ㅊ \n 9.쿠이orㅋㅇ \n 10.탱 or ㅌ");
+        replier.reply("(필드보스이름)ㅋ(시간):(분)\n(일반보스이름)ㅋ(분):(초)\n(컷타임등록명령어)\nEx)[ㅂㅁㅋ13:00]\n");
+        replier.reply("2. 보스 전체시간 \n(필드보스전체시간 확인)\n3. 등대 전체시간 \n(등대보스전체시간 확인\n");
+        replier.reply("4. 탱크시간 \n(탱크시간 확인)\n --------------------------------------");
+     
+      }   
+      
+    }
+  }
+  catch(exception){
+    replier.reply("삐빅!! 잘못된 명령어형식감지\n명령어설명:사용법안내 쳐주세욥\n\n주의☆컷타임재등록요구!!!☆\n");
+    replier.reply(exception);
+    return;
+  }
+}
+
+//아래 4개의 메소드는 액티비티 화면을 수정할때 사용됩니다.
+function onCreate(savedInstanceState, activity) {
+  var textView = new android.widget.TextView(activity);
+  textView.setText("Hello, World!");
+  textView.setTextColor(android.graphics.Color.DKGRAY);
+  activity.setContentView(textView);
+}
+
+function onStart(activity) {}
+
+function onResume(activity) {}
+
+function onPause(activity) {}
+
+function onStop(activity) {}
