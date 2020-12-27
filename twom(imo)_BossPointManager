@@ -2,21 +2,21 @@ importClass(org.jsoup.Jsoup);
 importClass(java.io.RandomAccessFile);
 var roomname="왕국길드 포인트방";
 
-var 유저={};
+var users={};
 function scanf(sender){
-  유저[sender].wait=true;
-  유저[sender].msg = " ";
-  while(유저[sender].msg == " "){}
-  유저[sender].wait=false;
-  return 유저[sender].msg;
+  users[sender].wait=true;
+  users[sender].msg = " ";
+  while(users[sender].msg == " "){}
+  users[sender].wait=false;
+  return users[sender].msg;
 }
 
 
 
 
 function response(room, msg, sender, isGroupChat, replier, imageDB, packageName) {
-  if(!유저[sender]){유저[sender]={"msg":" ","wait":false};}
-  if(유저[sender].wait){유저[sender].msg = msg; return;}
+  if(!users[sender]){users[sender]={"msg":" ","wait":false};}
+  if(users[sender].wait){users[sender].msg = msg; return;}
   if(room!=roomname){
     return;
   }
