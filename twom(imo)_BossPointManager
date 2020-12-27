@@ -1,0 +1,255 @@
+importClass(org.jsoup.Jsoup);
+importClass(java.io.RandomAccessFile);
+var roomname="왕국길드 포인트방";
+
+var 유저={};
+function scanf(sender){
+  유저[sender].wait=true;
+  유저[sender].msg = " ";
+  while(유저[sender].msg == " "){}
+  유저[sender].wait=false;
+  return 유저[sender].msg;
+}
+
+
+
+
+function response(room, msg, sender, isGroupChat, replier, imageDB, packageName) {
+  if(!유저[sender]){유저[sender]={"msg":" ","wait":false};}
+  if(유저[sender].wait){유저[sender].msg = msg; return;}
+  if(room!=roomname){
+    return;
+  }
+  try{
+  var pointList=[]; var data;var cnt=0;
+  
+  function fwrite(array){
+    
+    array.sort( function(a,b){
+      return a.name<b.name?-1:a.name>b.name?1:0;
+    });
+    array=JSON.stringify(array);
+    FileStream.write("/sdcard/아이모챗봇/guildpoint.txt",array);
+    
+  }
+  
+  if (msg=="@해시코드") {
+replier.reply(""+java.lang.String(imageDB.getProfileImage()).hashCode()+"");
+}
+  hash = java.lang.String(imageDB.getProfileImage()).hashCode();
+  hashcodelist=[-818268707,-251148197,1997926361,927295816,1860399378,240571905];
+  
+  if(hashcodelist.indexOf(hash)!=-1){
+  if(msg.startsWith("/관리자모드")){
+    replier.reply("관리자모드 진입 1.추가2.수정3.삭제4.출력");
+    var scanf_admin=scanf(sender);
+    if(scanf_admin==1){
+      replier.reply("추가할 데이터를 [이름 현재포인트/전체포인트] 형식으로 입력해주세요");
+      
+      var scanf_addData=scanf(sender);
+      var addData_admin=scanf_addData.split(/ |\//);     
+     
+      var plus_data=FileStream.read("/sdcard/아이모챗봇/guildpoint.txt");
+      plus_data=JSON.parse(plus_data);
+      
+      plus_data.push({name:addData_admin[0],pp:addData_admin[1],tp:addData_admin[2]});
+      fwrite(plus_data);
+      
+      replier.reply(addData_admin[0]+" 추가완료 현재포인트:"+addData_admin[1]+" 전체포인트:"+addData_admin[2]);
+      pointList=[];
+      
+    }//추가메뉴
+    else if(scanf_admin==2){
+      replier.reply("수정을 원하는 내용을 \n[캘닉 현재포인트/전체포인트] \n형식으로 입력해주세요");
+      var ch_name=scanf(sender);
+      ch_name=ch_name.split(/ |\//);
+      var data_add=FileStream.read("/sdcard/아이모챗봇/guildpoint.txt");
+      data_add=JSON.parse(data_add);
+      
+      cnt=0;
+      for(i=0;i<data_add.length;i++){
+        if(data_add[i].name==ch_name[0]){
+          data_add[i].name=ch_name[0];
+          data_add[i].pp=ch_name[1];
+          data_add[i].tp=ch_name[2];
+          cnt++;
+          break;
+        }
+        else{cnt=0;}
+      }
+      if(cnt==0){
+        replier.reply("입력하신 캐릭터를 리스트에서 찾을수 없습니다.");
+        return;
+      }
+      fwrite(data_add);
+      
+      replier.reply(ch_name[0]+' '+ch_name[1]+'/'+ch_name[2]+" 로 변경되었습니다.");
+      
+       
+      }//수정메뉴
+    
+    else if(scanf_admin==3){
+      var del_cnt;
+      replier.reply("삭제를 원하는 캐릭터명을 입력해주세요");
+      var del_name=scanf(sender);
+      del_data=FileStream.read("/sdcard/아이모챗봇/guildpoint.txt");
+      del_data=JSON.parse(del_data);
+      
+      cnt=0;
+      for(i=0;i<del_data.length;i++){
+        if(del_data[i].name==del_name){
+          del_data.splice(i,1);
+          cnt++;
+          break;
+        }
+        else{cnt=0;}
+      }
+      if(cnt==0){
+        replier.reply("입력하신 캐릭터를 리스트에서 찾을수 없습니다.");
+        return;
+      }
+      
+      fwrite(del_data);
+      replier.reply(del_name+" 의 항목이 삭제되었습니다");
+      
+        
+    }//삭제메뉴
+    
+    else if(scanf_admin==4){
+      var dataRead=FileStream.read("/sdcard/아이모챗봇/guildpoint.txt");
+      dataRead=JSON.parse(dataRead);
+      var dd="-----------포인트리스트----------\n\n";
+      for(i=0;i<dataRead.length;i++){
+        dd+=('['+dataRead[i].name+'] ('+dataRead[i].pp+'/'+dataRead[i].tp+')\n');
+      }
+      replier.reply(dd);
+    }
+    /*else if(scanf_admin==5){
+      var amm=[];
+      replier.reply("입력ㄱ");
+      var addd=scanf(sender);
+      addd=addd.split(/ |\//);
+      amm.push({name:addd[0],tp:addd[1],pp:addd[2]});
+      amm=JSON.stringify(amm);
+      FileStream.write("/sdcard/아이모챗봇/guildpoint.txt",amm);
+    }*/
+    else if(scanf_admin==6){
+      del_data=FileStream.read("/sdcard/아이모챗봇/guildpoint.txt");
+      del_data=JSON.parse(del_data);
+      del_name="";
+      cnt=0;
+      for(i=0;i<del_data.length;i++){
+        if(del_data[i].name==del_name){
+          del_data.splice(i,1);
+          cnt++;
+          break;
+        }
+        else{cnt=0;}
+      }
+      if(cnt==0){
+        replier.reply("입력하신 캐릭터를 리스트에서 찾을수 없습니다.");
+        return;
+      }
+      
+      fwrite(del_data);
+      replier.reply(del_name+" 의 항목이 삭제되었습니다");
+      
+    }
+    else{
+      replier.reply("없는 명령어 형식입니다.");
+      return;
+    }
+    }
+  }
+  
+  
+  function bossPoint(bossP){
+       
+    
+  }
+  
+
+  var msg_split=msg;var msg_split_string;
+  if(msg.startsWith("#")){
+    msg_split_data=msg.split(/#| /);
+    var data_boss=FileStream.read("/sdcard/아이모챗봇/guildpoint.txt");
+    data_boss=JSON.parse(data_boss);
+    var now_day= new Date();var doublepoint=0;
+    if(now_day.getHours()>=1&&now_day.getHours()<=8){
+      doublepoint=1;
+      replier.reply("야간모드on\n1점이 추가됩니다.");
+    }
+    var bossp=0;
+    if(msg_split_data[2]=="길전"){bossp= 5;if(now_day.getHours()>=1&&now_day.getHours()<=8){replier.reply("길드전은 야간모드에 적용되지않습니다.\n 5점만 적용됩니다.");}}
+    else if(msg_split_data[2]=="바슬"){bossp= 5+doublepoint;}
+    else if(msg_split_data[2]=="딜린"||msg_split_data[2]=="마녀"){bossp= 4+doublepoint;}
+    else if(msg_split_data[2]=="우크"){bossp= 2+doublepoint;}
+    else if(msg_split_data[2]=="빅마"||msg_split_data[2]=="마마"){bossp= 2+doublepoint;}
+    else if(msg_split_data[2]=="페이쓰"){bossp= 1+doublepoint;}
+    else if(msg_split_data[2]=="은둔"){bossp= 1+doublepoint;}
+    else if(msg_split_data[2]=="뎁"||msg_split_data[2]=="데블랑"){bossp= doublepoint;}
+    else{replier.reply("보스이름을 찾을 수 없습니다. 재입력해주세요");return;}
+    
+    cnt=0;
+    for(i=0;i<data_boss.length;i++){
+        if(data_boss[i].name==msg_split_data[1]){
+          boss_pp=data_boss[i].pp;
+          data_boss[i].pp=Number(boss_pp)+bossp;
+          boss_tp=data_boss[i].tp;
+          data_boss[i].tp=Number(boss_tp)+bossp;
+          replier.reply(msg_split_data[1]+"님의 포인트가 ["+boss_pp+"] -> ["+data_boss[i].pp+"] 로 변경되었습니다.");
+          cnt++;
+          break;
+        }
+        else{cnt=0;}
+      } 
+    if(cnt==0){
+        replier.reply("입력하신 캐릭터를 리스트에서 찾을 수 없습니다.");
+        return;
+      }
+    fwrite(data_boss);
+       
+  }
+  else if(msg.startsWith("@")){
+    msg_split_data=msg.split(/@| /);
+    var bosspoint_read=FileStream.read("/sdcard/아이모챗봇/guildpoint.txt");
+    bosspoint_read=JSON.parse(bosspoint_read);
+    var del_point;
+    if(msg_split_data[2]=="피심"){del_point= 20;}
+    else if(msg_split_data[2]=="솬서"){del_point= 20;}
+    else if(msg_split_data[2]=="골드"){del_point= 100;}
+    else{replier.reply("명령어를 찾을 수 없습니다. 재입력해주세요");return;}
+    cnt=0;
+    for(i=0;i<bosspoint_read.length;i++){
+        if(bosspoint_read[i].name==msg_split_data[1]){
+          boss_pp=bosspoint_read[i].pp;
+          if(Number(boss_pp)-del_point<0){
+            replier.reply("가지고있는 포인트가 너무 작아 실행되지 않았습니다.");
+            return;
+          }
+          bosspoint_read[i].pp=Number(boss_pp)-del_point;
+          
+          replier.reply(msg_split_data[1]+"님의 포인트가 ["+boss_pp+"] -> ["+bosspoint_read[i].pp+"] 로 변경되었습니다.");
+          cnt++;
+          break;
+        }
+        else{cnt=0;}
+      } 
+    if(cnt==0){
+      replier.reply("입력하신 캐릭터를 리스트에서 찾을 수 없습니다.");
+      return;
+      }
+    fwrite(bosspoint_read);
+  }
+  if(msg.startsWith("사용법안내")){
+    replier.reply("명령어형식: [#이름 보스이름] \n공백 반드시입력\n보스이름:[길전(5),바슬(5),딜린(3),\n우크(2),마마(2),페이쓰(1),은둔(1),\n뎁(1)]\n야간 1점추가(AM01:00~09:00)\n\n명령어:[@이름 물품명]\n물품명:피심(20)차감");
+  
+  }
+    
+  }
+  catch(exception){
+    replier.reply(exception);
+  }
+    
+  
+}
