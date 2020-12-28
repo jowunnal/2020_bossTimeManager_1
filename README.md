@@ -1,6 +1,7 @@
 # jino
 이 소스코드의 라이센스는 본 글쓴이에게 있습니다.
 2차배포를 엄중히 금지합니다.
+
 Copyright [2020] [jin]
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
