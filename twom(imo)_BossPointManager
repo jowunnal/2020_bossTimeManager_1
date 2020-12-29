@@ -44,6 +44,10 @@ replier.reply(""+java.lang.String(imageDB.getProfileImage()).hashCode()+"");
     replier.reply("관리자모드 진입 1.추가2.수정3.삭제4.출력");
     var scanf_admin=scanf(sender);
     if(scanf_admin==1){
+      var myFile = new java.io.File("/sdcard/아이모챗봇/guildpoint.txt");
+      if (myFile.exists() == false) {           
+        myFile.createNewFile();
+      }
       replier.reply("추가할 데이터를 [이름 현재포인트/전체포인트] 형식으로 입력해주세요");
       
       var scanf_addData=scanf(sender);
@@ -124,15 +128,8 @@ replier.reply(""+java.lang.String(imageDB.getProfileImage()).hashCode()+"");
       }
       replier.reply(dd);
     }
-    /*else if(scanf_admin==5){
-      var amm=[];
-      replier.reply("입력ㄱ");
-      var addd=scanf(sender);
-      addd=addd.split(/ |\//);
-      amm.push({name:addd[0],tp:addd[1],pp:addd[2]});
-      amm=JSON.stringify(amm);
-      FileStream.write("/sdcard/아이모챗봇/guildpoint.txt",amm);
-    }*/
+    
+    //공백문자 제거메뉴
     else if(scanf_admin==6){
       del_data=FileStream.read("/sdcard/아이모챗봇/guildpoint.txt");
       del_data=JSON.parse(del_data);
